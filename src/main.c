@@ -4,7 +4,7 @@
 
 #define PLAYER 'O'
 #define EMPTY ' '
-#define WALL 'I'
+#define WALL '.'
 #define GOAL 'X'
 #define UP 'k'
 #define DOWN 'j'
@@ -182,39 +182,6 @@ void generate_aldous_broder(char maze[row][col]) {
             node_i++;
         }
     }
-    bool visited[node_i];
-    int visited_i = 0;
-    for (int i = 0; i < node_i; i++) {
-        visited[i] = false;
-    }
 
-    // pick random starting node
     int rand_id, rand_row, rand_col;
-    do {
-        rand_id = rand() % node_i;
-        rand_row = (rand_id / node_i) + 1;
-        rand_col = (rand_id % (ecol - scol)) + 1;
-    } while (maze[rand_row][rand_col] == WALL);
-    int curr_row = rand_row;
-    int curr_col = rand_col;
-    nodes[rand_id].visited = true;
-    visited[visited_i] = true;
-    visited_i++;
-    maze[curr_row][curr_col] = '@';
-    do {
-        do {
-            rand_id = rand() % 9;
-            rand_row = (rand_id / 3) + 1 + curr_row;
-            rand_col = (rand_id % 3) + 1 + curr_col;
-        } while (rand_id % 2 != 0 || rand_row < srow || rand_row >= erow ||
-                 rand_col < scol || rand_col >= ecol);
-        int actual_id = (rand_row * (erow - srow)) + rand_col;
-        if (!nodes[actual_id].visited) {
-            nodes[actual_id].visited = true;
-            visited[visited_i] = true;
-            maze[rand_row][rand_col] = '@';
-            visited_i++;
-            return;
-        }
-    } while (!visited[node_i - 1]);
 }
