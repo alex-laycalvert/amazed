@@ -1,12 +1,15 @@
 #include <ncurses.h>
+#include <stdlib.h>
+#include <time.h>
 
 #define PLAYER 'O'
+#define EMPTY ' '
+#define WALL 'I'
+#define GOAL 'X'
 #define UP 'w'
 #define DOWN 's'
 #define LEFT 'a'
 #define RIGHT 'd'
-#define EMPTY ' '
-#define WALL 'I'
 #define QUIT 'q'
 
 int row, col;
@@ -18,6 +21,7 @@ void exit_program();
 void init_maze(char maze[row][col]);
 
 int main(void) {
+    srand(time(0));
     setup();
     run();
     exit_program();
@@ -33,6 +37,7 @@ void setup() {
 }
 
 void run() {
+    bool win = false;
     char maze[row][col];
     init_maze(maze);
 
@@ -77,15 +82,22 @@ void run() {
             default:
                 break;
         }
+        if (maze[player_row][player_col] == GOAL) win = true;
         refresh();
-    } while (true);
+    } while (!win);
 }
 
 void exit_program() { endwin(); }
 
 void init_maze(char maze[row][col]) {
-    for (int i = 0; i < row; i++)
-        for (int j = 0; j < col; j++) maze[i][j] = EMPTY;
+    for (int i = 1; i < row - 1; i++) {
+        for (int j = 1; j < col - 1; j++) {
+            if (rand() % 10 == 9)
+                maze[i][j] = WALL;
+            else
+                maze[i][j] = EMPTY;
+        }
+    }
     for (int i = 0; i < row; i++) {
         maze[i][0] = WALL;
         maze[i][col - 1] = WALL;
@@ -94,4 +106,5 @@ void init_maze(char maze[row][col]) {
         maze[0][i] = WALL;
         maze[row - 1][i] = WALL;
     }
+    maze[row - 2][col - 2] = GOAL;
 }
