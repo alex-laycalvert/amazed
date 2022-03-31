@@ -6,10 +6,10 @@
 #define EMPTY ' '
 #define WALL 'I'
 #define GOAL 'X'
-#define UP 'w'
-#define DOWN 's'
-#define LEFT 'a'
-#define RIGHT 'd'
+#define UP 'k'
+#define DOWN 'j'
+#define LEFT 'h'
+#define RIGHT 'l'
 #define QUIT 'q'
 
 #define MAZE_LEVEL 1
@@ -49,11 +49,11 @@ void setup() {
 }
 
 void run() {
+    // init variables
     bool win = false;
     char maze[row][col];
     init_maze(maze);
 
-    // init variables
     int player_row = row / 2;
     int player_col = col / 2;
 
@@ -119,6 +119,8 @@ void init_maze(char maze[row][col]) {
         case 1:
             generate_aldous_broder(maze);
             break;
+        // TODO
+        // more maze generation algorithms
         default:
             break;
     }
@@ -152,28 +154,67 @@ void generate_random_walls(char maze[row][col]) {
 }
 
 void generate_aldous_broder(char maze[row][col]) {
-    int points_to_visit = ((row - 2) / 2) * ((col - 2) / 2);
-    struct point visited[points_to_visit];
-    for (int i = 0; i < points_to_visit; i++) {
-        struct point tmp_point;
-        tmp_point.x = -1;
-        tmp_point.y = -1;
-        visited[i] = tmp_point;
+    int srow = 1;
+    int scol = 1;
+    int erow = row - 1;
+    int ecol = col - 1;
+    struct node {
+        int row;
+        int col;
+        int id;
+        char ch;
+        bool visited;
+    };
+    struct node nodes[(erow - srow) * (ecol - scol)];
+
+    // add walls nodes
+    int node_i = 0;
+    for (int i = srow; i < erow; i++) {
+        for (int j = scol; j < ecol; j++) {
+            if (i % 2 == 0 || j % 2 == 0) maze[i][j] = WALL;
+            struct node new_node;
+            new_node.row = i;
+            new_node.col = j;
+            new_node.id = node_i;
+            new_node.ch = maze[i][j];
+            new_node.visited = false;
+            nodes[node_i] = new_node;
+            node_i++;
+        }
     }
-    int curr_row, curr_col;
-    int rand_row, rand_col;
-    do {
-        rand_row = rand() % (row - 2) + 1;
-    } while (rand_row % 2 == 0);
-    do {
-        rand_col = rand() % (col - 2) + 1;
-    } while (rand_row % 2 == 0);
-    curr_row = rand_row;
-    curr_col = rand_col;
+    bool visited[node_i];
+    int visited_i = 0;
+    for (int i = 0; i < node_i; i++) {
+        visited[i] = false;
+    }
 
-    /* TODO */
-    return;
-
+    // pick random starting node
+    int rand_id, rand_row, rand_col;
     do {
-    } while (visited[points_to_visit - 1].x < 0);
+        rand_id = rand() % node_i;
+        rand_row = (rand_id / node_i) + 1;
+        rand_col = (rand_id % (ecol - scol)) + 1;
+    } while (maze[rand_row][rand_col] == WALL);
+    int curr_row = rand_row;
+    int curr_col = rand_col;
+    nodes[rand_id].visited = true;
+    visited[visited_i] = true;
+    visited_i++;
+    maze[curr_row][curr_col] = '@';
+    do {
+        do {
+            rand_id = rand() % 9;
+            rand_row = (rand_id / 3) + 1 + curr_row;
+            rand_col = (rand_id % 3) + 1 + curr_col;
+        } while (rand_id % 2 != 0 || rand_row < srow || rand_row >= erow ||
+                 rand_col < scol || rand_col >= ecol);
+        int actual_id = (rand_row * (erow - srow)) + rand_col;
+        if (!nodes[actual_id].visited) {
+            nodes[actual_id].visited = true;
+            visited[visited_i] = true;
+            maze[rand_row][rand_col] = '@';
+            visited_i++;
+            return;
+        }
+    } while (!visited[node_i - 1]);
 }
