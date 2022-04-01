@@ -66,12 +66,11 @@ void generate_random_walls(const int rows, const int cols,
 
 void generate_aldous_broder(const int rows, const int cols,
                             char maze[rows][cols]) {
-    struct node {
-        int id;
+    typedef struct node {
         int row;
         int col;
         bool visited;
-    };
+    } Node;
 
     // set walls between nodes
     int node_count = 0;
@@ -86,12 +85,12 @@ void generate_aldous_broder(const int rows, const int cols,
     }
 
     // initialize nodes
-    struct node nodes[node_count];
+    Node nodes[node_count];
     int node_i = 0;
     for (int i = 0; i < rows; i += 2) {
         for (int j = 0; j < cols; j += 2) {
-            struct node new_node;
-            new_node.id = node_i;
+            Node new_node;
+            /* new_node.id = node_i; */
             new_node.row = i;
             new_node.col = j;
             new_node.visited = false;
@@ -101,16 +100,17 @@ void generate_aldous_broder(const int rows, const int cols,
     }
 
     // get random starting node
-    struct node start_node = nodes[0];
+    Node start_node = nodes[0];
     start_node.visited = true;
-    nodes[start_node.id] = start_node;
     maze[start_node.row][start_node.col] = PLAYER;
-    struct node curr_node = nodes[start_node.id];
+    /* nodes[start_node.id] = start_node; */
+    Node curr_node = start_node;
 
     // populate maze
     bool all_visited = false;
+    int temp = 0;
     do {
-        struct node next_node;
+        Node* next_node;
         bool dir_chose = false;
         int row_offset = 0;
         int col_offset = 0;
@@ -145,17 +145,18 @@ void generate_aldous_broder(const int rows, const int cols,
             for (int i = 0; i < node_count; i++) {  // find next node
                 if (nodes[i].row == curr_node.row + row_offset &&
                     nodes[i].col == curr_node.col + col_offset) {
-                    next_node = nodes[i];
+                    next_node = &nodes[i];
                     break;
                 }
             }
-            if (!next_node.visited) {
-                maze[next_node.row - (row_offset / 2)]
-                    [next_node.col - (col_offset / 2)] = EMPTY;
-                next_node.visited = true;
+            if (!next_node->visited) {
+                maze[next_node->row - (row_offset / 2)]
+                    [next_node->col - (col_offset / 2)] = EMPTY;
+                next_node->visited = true;
             }
-            nodes[next_node.id] = next_node;
-            curr_node = nodes[next_node.id];
+
+            /* nodes[next_node.id] = next_node; */
+            curr_node = *next_node;
         } while (!dir_chose);
         for (int i = 0; i < node_count; i++) {
             if (!nodes[i].visited) break;

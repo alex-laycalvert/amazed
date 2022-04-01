@@ -29,7 +29,7 @@ void setup() {
     raw();
     keypad(stdscr, TRUE);
     noecho();
-    getmaxyx(stdscr, rows, rows);
+    getmaxyx(stdscr, rows, cols);
     if ((rows - 2) % 2 == 0) {
         rows--;
     }
