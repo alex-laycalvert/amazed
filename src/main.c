@@ -3,6 +3,7 @@
 #include <time.h>
 
 #include "maze.h"
+#include "menu.h"
 
 #define UP_KEY 'k'
 #define DOWN_KEY 'j'
@@ -29,6 +30,7 @@ void setup() {
     raw();
     keypad(stdscr, TRUE);
     noecho();
+    curs_set(0);
     getmaxyx(stdscr, rows, cols);
     if ((rows - 2) % 2 == 0) {
         rows--;
@@ -39,9 +41,11 @@ void setup() {
 }
 
 void run() {
+    int maze_level = maze_menu(rows + 2, cols + 2);
+
     bool win = false;
     char maze[rows - 2][cols - 2];
-    init_maze(1, rows - 2, cols - 2, maze);
+    init_maze(maze_level, rows - 2, cols - 2, maze);
     int player_row, player_col;
     for (int i = 0; i < rows - 2; i++) {
         bool found = false;
@@ -79,7 +83,6 @@ void run() {
                 player_row++;
                 break;
             case LEFT_KEY:
-                if (player_col - 1 < 0) break;
                 if (maze[player_row][player_col - 1] == WALL) break;
                 player_col--;
                 break;
