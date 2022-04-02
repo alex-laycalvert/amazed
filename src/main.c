@@ -71,7 +71,7 @@ void run() {
         maze[player_row][player_col] = EMPTY;
         switch (key) {
             case QUIT_KEY:
-                return;
+                maze_menu(rows + 2, cols + 2);
             case UP_KEY:
                 if (player_row - 1 < 0) break;
                 if (maze[player_row - 1][player_col] == WALL) break;
